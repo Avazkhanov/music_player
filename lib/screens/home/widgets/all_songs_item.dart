@@ -85,13 +85,12 @@ class _AllSongsItemState extends State<AllSongsItem> {
                           onPressed: () {
                             if (isFavorite) {
                               context.read<FavoriteMusicCubit>().deleteFavorite(music.id);
-                              context.read<FavoriteMusicCubit>().readAllFavoriteMusic();
                             } else {
                               context.read<FavoriteMusicCubit>().addFavorite(
                                 FavoriteMusicModel(musicId: music.id),
                               );
-                              context.read<FavoriteMusicCubit>().readAllFavoriteMusic();
                             }
+                            context.read<FavoriteMusicCubit>().readAllFavoriteMusic();
                           },
                           icon: Icon(
                             isFavorite ? Icons.favorite : Icons.favorite_border,

@@ -11,14 +11,20 @@ import 'package:music_player/screens/home/widgets/song_minute_item.dart';
 import 'package:music_player/utils/styles/app_style.dart';
 
 class RecentlyPlayedItem extends StatefulWidget {
-  const RecentlyPlayedItem({super.key});
+  const RecentlyPlayedItem({super.key, required this.songsId});
+  final String songsId;
 
   @override
   State<RecentlyPlayedItem> createState() => _RecentlyPlayedItemState();
 }
 
 class _RecentlyPlayedItemState extends State<RecentlyPlayedItem> {
-  final AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.withId('0');
+  late AssetsAudioPlayer audioPlayer;
+  @override
+  void initState() {
+    audioPlayer = AssetsAudioPlayer.withId(widget.songsId);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +34,7 @@ class _RecentlyPlayedItemState extends State<RecentlyPlayedItem> {
         context.read<FavoriteMusicCubit>().checkFavorite(musicId);
         return BlocBuilder<FavoriteMusicCubit, FavoriteMusicState>(
           builder: (context, state) {
-            bool isFavorite = state.isFavorite;
+            bool isFavorite = state.favorites.any((fav) => fav.musicId == musicId);
             return Container(
               padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
               decoration: BoxDecoration(
@@ -82,6 +88,8 @@ class _RecentlyPlayedItemState extends State<RecentlyPlayedItem> {
                             context.read<FavoriteMusicCubit>().addFavorite(
                                 FavoriteMusicModel(musicId: musicId));
                           }
+                          context.read<FavoriteMusicCubit>().readAllFavoriteMusic();
+
                         },
                         icon: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_border,
