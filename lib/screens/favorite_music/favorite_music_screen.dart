@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_const_constructors
 
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +29,7 @@ class _FavoriteMusicScreenState extends State<FavoriteMusicScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: FavoriteMusicAppBar(),
+      appBar: const FavoriteMusicAppBar(),
       body: BlocBuilder<AllMusicBloc, AllMusicState>(
         builder: (context, state) {
           if (state is GetAllMusicState) {
@@ -119,7 +118,7 @@ class _FavoriteMusicScreenState extends State<FavoriteMusicScreen> {
           );
         },
       ),
-      bottomSheet: RecentlyPlayedItem(songsId: '1'),
+      bottomSheet: const RecentlyPlayedItem(songsId: '1'),
     );
   }
 }
