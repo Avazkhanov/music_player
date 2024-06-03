@@ -1,4 +1,3 @@
-
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +9,7 @@ import 'package:music_player/bloc/favorite_music/favorite_music_state.dart';
 import 'package:music_player/data/models/all_music_model.dart';
 import 'package:music_player/data/models/favorite_music_model.dart';
 import 'package:music_player/screens/favorite_music/widgets/favorite_music_appbar.dart';
+import 'package:music_player/screens/widgets/no_data_item.dart';
 import 'package:music_player/screens/widgets/recently_played_item.dart';
 import 'package:music_player/screens/home/widgets/song_image_creator_item.dart';
 import 'package:music_player/utils/styles/app_style.dart';
@@ -22,7 +22,6 @@ class FavoriteMusicScreen extends StatefulWidget {
 }
 
 class _FavoriteMusicScreenState extends State<FavoriteMusicScreen> {
-
   final AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.withId("1");
 
   @override
@@ -34,14 +33,13 @@ class _FavoriteMusicScreenState extends State<FavoriteMusicScreen> {
         builder: (context, state) {
           if (state is GetAllMusicState) {
             if (state.allMusic.isEmpty) {
-              return const Center(
-                child: Text("No Data"),
-              );
+              return const NoDataItem(message: "Qurilmangizda qo'shiqlar mavjud emas");
             }
             List<Audio> convertAudios = [];
             for (var i in state.allMusic) {
-              for(var j in context.read<FavoriteMusicCubit>().state.favorites){
-                if(i.id == j.musicId){
+              for (var j
+                  in context.read<FavoriteMusicCubit>().state.favorites) {
+                if (i.id == j.musicId) {
                   convertAudios.add(Audio.file(
                     i.url,
                     metas: Metas(
@@ -52,6 +50,10 @@ class _FavoriteMusicScreenState extends State<FavoriteMusicScreen> {
                   ));
                 }
               }
+            }
+
+            if (convertAudios.isEmpty) {
+              return const NoDataItem(message: "Siz hali sevimli qo'shiqlar qo'shmadingiz");
             }
             return ListView.separated(
               shrinkWrap: true,

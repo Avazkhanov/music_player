@@ -10,7 +10,7 @@ class FavoriteMusicAppBar extends StatelessWidget implements PreferredSizeWidget
     return AppBar(
       backgroundColor: Colors.black,
       title: Text(
-        "Sevimli Musiqalar",
+        "Sevimli qo'shiqlar",
         style: AppStyle.interBold.copyWith(
           fontSize: 18.sp,
         ),

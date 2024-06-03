@@ -9,6 +9,7 @@ import 'package:music_player/bloc/favorite_music/favorite_music_state.dart';
 import 'package:music_player/data/models/all_music_model.dart';
 import 'package:music_player/data/models/favorite_music_model.dart';
 import 'package:music_player/screens/home/widgets/song_image_creator_item.dart';
+import 'package:music_player/screens/widgets/no_data_item.dart';
 import 'package:music_player/utils/styles/app_style.dart';
 
 class AllSongsItem extends StatefulWidget {
@@ -29,7 +30,7 @@ class _AllSongsItemState extends State<AllSongsItem> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: const Text(
-            "All Songs",
+            "Barcha qo'shiqlar",
             style: AppStyle.interMedium,
           ),
         ),
@@ -38,9 +39,7 @@ class _AllSongsItemState extends State<AllSongsItem> {
           builder: (context, state) {
             if (state is GetAllMusicState) {
               if (state.allMusic.isEmpty) {
-                return const Center(
-                  child: Text("No Data"),
-                );
+                return const NoDataItem(message: "Qurilmangizda qo'shiqlar mavjud emas");
               }
               List<Audio> convertAudios = [];
               for (var i in state.allMusic) {

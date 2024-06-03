@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(
-          "Hello",
+          "Salom",
           style: AppStyle.interBold.copyWith(fontSize: 24.sp),
         ),
       ),
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Icon(Icons.favorite, color: Colors.red),
                       10.horizontalSpace,
                       Text(
-                        "Sevimli musiqalar",
+                        "Sevimli qo'shiqlar",
                         style: AppStyle.interRegular,
                       ),
                     ],

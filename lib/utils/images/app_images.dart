@@ -4,4 +4,8 @@ class AppImages{
 
   // .jpeg
   static const String music = "assets/images/music.jpeg";
+
+  // .lottie
+  static const empty = "assets/lottie/empty.json";
+
 }
