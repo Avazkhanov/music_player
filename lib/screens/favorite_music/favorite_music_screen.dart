@@ -6,8 +6,6 @@ import 'package:music_player/bloc/all_music/all_music_bloc.dart';
 import 'package:music_player/bloc/all_music/all_music_state.dart';
 import 'package:music_player/bloc/favorite_music/favorite_music_cubit.dart';
 import 'package:music_player/bloc/favorite_music/favorite_music_state.dart';
-import 'package:music_player/data/models/all_music_model.dart';
-import 'package:music_player/data/models/favorite_music_model.dart';
 import 'package:music_player/screens/favorite_music/widgets/favorite_music_appbar.dart';
 import 'package:music_player/screens/widgets/no_data_item.dart';
 import 'package:music_player/screens/widgets/recently_played_item.dart';
@@ -23,6 +21,7 @@ class FavoriteMusicScreen extends StatefulWidget {
 
 class _FavoriteMusicScreenState extends State<FavoriteMusicScreen> {
   final AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.withId("1");
+  final AssetsAudioPlayer previousAudioPlayer = AssetsAudioPlayer.withId("0");
 
   @override
   Widget build(BuildContext context) {
@@ -30,94 +29,72 @@ class _FavoriteMusicScreenState extends State<FavoriteMusicScreen> {
       backgroundColor: Colors.black,
       appBar: const FavoriteMusicAppBar(),
       body: BlocBuilder<AllMusicBloc, AllMusicState>(
-        builder: (context, state) {
-          if (state is GetAllMusicState) {
-            if (state.allMusic.isEmpty) {
-              return const NoDataItem(message: "Qurilmangizda qo'shiqlar mavjud emas");
-            }
-            List<Audio> convertAudios = [];
-            for (var i in state.allMusic) {
-              for (var j
-                  in context.read<FavoriteMusicCubit>().state.favorites) {
-                if (i.id == j.musicId) {
-                  convertAudios.add(Audio.file(
-                    i.url,
-                    metas: Metas(
-                      title: i.name,
-                      artist: i.artist,
-                      id: i.id.toString(),
-                    ),
-                  ));
-                }
-              }
-            }
+        builder: (context, allMusicState) {
+          if (allMusicState is GetAllMusicState) {
+            return BlocBuilder<FavoriteMusicCubit, FavoriteMusicState>(
+              builder: (context, state) {
+                final favorites =
+                    context.read<FavoriteMusicCubit>().state.favorites;
+                final favoriteAudios = allMusicState.allMusic
+                    .where((music) =>
+                        favorites.any((fav) => fav.musicId == music.id))
+                    .map((music) => Audio.file(
+                          music.url,
+                          metas: Metas(
+                            title: music.name,
+                            artist: music.artist,
+                            id: music.id.toString(),
+                          ),
+                        ))
+                    .toList();
 
-            if (convertAudios.isEmpty) {
-              return const NoDataItem(message: "Siz hali sevimli qo'shiqlar qo'shmadingiz");
-            }
-            return ListView.separated(
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                AllMusicModel music = state.allMusic[index];
-                return BlocBuilder<FavoriteMusicCubit, FavoriteMusicState>(
-                  builder: (context, favState) {
-                    bool isFavorite = favState.favorites
-                        .any((fav) => fav.musicId == music.id);
+                if (favoriteAudios.isEmpty) {
+                  return const NoDataItem(
+                      message: "Siz hali sevimli qo'shiqlar qo'shmadingiz");
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    final music = favoriteAudios[index].metas;
+                    final musicId = int.parse(music.id!);
                     return ListTile(
                       onTap: () {
+                        previousAudioPlayer.stop();
                         audioPlayer.open(
-                          Playlist(
-                            audios: convertAudios,
-                            startIndex: index,
-                          ),
+                          Playlist(audios: favoriteAudios, startIndex: index),
                           showNotification: true,
                           headPhoneStrategy:
                               HeadPhoneStrategy.pauseOnUnplugPlayOnPlug,
                         );
                       },
-                      leading: SongImageCreatorItem(id: music.id),
-                      title: Text(
-                        music.name,
-                        style: AppStyle.interRegular,
-                      ),
+                      leading: SongImageCreatorItem(id: musicId),
+                      title: Text(music.title!, style: AppStyle.interRegular),
                       subtitle: Text(
-                        music.artist.isEmpty ? "No artist" : music.artist,
+                        music.artist!.isEmpty ? "No artist" : music.artist!,
                         overflow: TextOverflow.ellipsis,
                         style: AppStyle.interRegular,
                       ),
                       trailing: IconButton(
                         onPressed: () {
-                          if (isFavorite) {
-                            context
-                                .read<FavoriteMusicCubit>()
-                                .deleteFavorite(music.id);
-                          } else {
-                            context.read<FavoriteMusicCubit>().addFavorite(
-                                  FavoriteMusicModel(musicId: music.id),
-                                );
-                          }
+                          context
+                              .read<FavoriteMusicCubit>()
+                              .deleteFavorite(musicId);
                           context
                               .read<FavoriteMusicCubit>()
                               .readAllFavoriteMusic();
                         },
-                        icon: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: isFavorite ? Colors.red : Colors.grey,
-                        ),
+                        icon: const Icon(Icons.favorite, color: Colors.red),
                       ),
                     );
                   },
+                  separatorBuilder: (context, index) => 10.verticalSpace,
+                  itemCount: favoriteAudios.length,
                 );
               },
-              separatorBuilder: (context, index) {
-                return 10.verticalSpace;
-              },
-              itemCount: convertAudios.length,
             );
           }
-          return const Center(
-            child: Text("Error"),
-          );
+          return const Center(child: Text("Error"));
         },
       ),
       bottomSheet: const RecentlyPlayedItem(songsId: '1'),

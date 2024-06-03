@@ -31,7 +31,6 @@ class _RecentlyPlayedItemState extends State<RecentlyPlayedItem> {
     return audioPlayer.builderCurrent(
       builder: (context, playing) {
         int musicId = int.parse(playing.audio.audio.metas.id!);
-        context.read<FavoriteMusicCubit>().checkFavorite(musicId);
         return BlocBuilder<FavoriteMusicCubit, FavoriteMusicState>(
           builder: (context, state) {
             bool isFavorite = state.favorites.any((fav) => fav.musicId == musicId);

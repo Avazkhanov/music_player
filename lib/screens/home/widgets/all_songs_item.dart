@@ -21,6 +21,7 @@ class AllSongsItem extends StatefulWidget {
 
 class _AllSongsItemState extends State<AllSongsItem> {
   final AssetsAudioPlayer audioPlayer = AssetsAudioPlayer.withId("0");
+  final AssetsAudioPlayer previousAudioPlayer = AssetsAudioPlayer.withId("1");
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,8 @@ class _AllSongsItemState extends State<AllSongsItem> {
           builder: (context, state) {
             if (state is GetAllMusicState) {
               if (state.allMusic.isEmpty) {
-                return const NoDataItem(message: "Qurilmangizda qo'shiqlar mavjud emas");
+                return const NoDataItem(
+                    message: "Qurilmangizda qo'shiqlar mavjud emas");
               }
               List<Audio> convertAudios = [];
               for (var i in state.allMusic) {
@@ -58,16 +60,20 @@ class _AllSongsItemState extends State<AllSongsItem> {
                   AllMusicModel music = state.allMusic[index];
                   return BlocBuilder<FavoriteMusicCubit, FavoriteMusicState>(
                     builder: (context, favState) {
-                      bool isFavorite = favState.favorites.any((fav) => fav.musicId == music.id);
+                      bool isFavorite = favState.favorites
+                          .any((fav) => fav.musicId == music.id);
                       return ListTile(
                         onTap: () {
+                          previousAudioPlayer.stop();
                           audioPlayer.open(
                             Playlist(
                               audios: convertAudios,
                               startIndex: index,
                             ),
                             showNotification: true,
-                            headPhoneStrategy: HeadPhoneStrategy.pauseOnUnplugPlayOnPlug,
+                            notificationSettings: NotificationSettings(),
+                            headPhoneStrategy:
+                                HeadPhoneStrategy.pauseOnUnplugPlayOnPlug,
                           );
                         },
                         leading: SongImageCreatorItem(id: music.id),
@@ -83,13 +89,17 @@ class _AllSongsItemState extends State<AllSongsItem> {
                         trailing: IconButton(
                           onPressed: () {
                             if (isFavorite) {
-                              context.read<FavoriteMusicCubit>().deleteFavorite(music.id);
+                              context
+                                  .read<FavoriteMusicCubit>()
+                                  .deleteFavorite(music.id);
                             } else {
                               context.read<FavoriteMusicCubit>().addFavorite(
-                                FavoriteMusicModel(musicId: music.id),
-                              );
+                                    FavoriteMusicModel(musicId: music.id),
+                                  );
                             }
-                            context.read<FavoriteMusicCubit>().readAllFavoriteMusic();
+                            context
+                                .read<FavoriteMusicCubit>()
+                                .readAllFavoriteMusic();
                           },
                           icon: Icon(
                             isFavorite ? Icons.favorite : Icons.favorite_border,
